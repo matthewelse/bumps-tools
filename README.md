@@ -46,7 +46,7 @@ Use the `query` tool.
 
 ```bash
 $ cd $THIS_REPO_PATH
-$ cargo run -q -- query --competition men-mays --crew kings --year 1998 --data-dir ~/Desktop/bumps/data/Data_Files
+$ cargo run -q -- query --competition men-mays --crew kings --year 1998 --data-dir $CD_PATH/data/Data_Files
 year: 1998
 crew name: King's 3
 crew alias: kings3
