@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::Path;
 
-struct Decoder<T: Read> {
+pub struct Decoder<T: Read> {
     reader: T,
     key: u8,
 }
@@ -25,10 +25,7 @@ impl<T: Read> Decoder<T> {
 
         let key = buf[0];
 
-        Ok(Decoder {
-            reader: reader,
-            key: key,
-        })
+        Ok(Decoder { reader, key })
     }
 }
 
@@ -47,7 +44,7 @@ impl<T: Read> Read for Decoder<T> {
         let mut skip_next = false;
 
         for i in 0..bytes_read {
-            if skip_next == true {
+            if skip_next {
                 skip_next = false;
                 continue;
             }
