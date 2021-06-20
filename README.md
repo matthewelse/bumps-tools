@@ -40,3 +40,15 @@ $ cargo run -q -- decode --file $CD_PATH/data/Data_Files/Data/Colleges.dat
 ...
 ```
 
+## Querying results
+
+Use the `query` tool.
+
+```bash
+$ cd $THIS_REPO_PATH
+$ cargo run -q -- query --competition men-mays --crew kings --year 1998 --data-dir ~/Desktop/bumps/data/Data_Files
+year: 1998
+crew name: King's 3
+crew alias: kings3
+results: [78, 79, 80, 81, 81]
+```
