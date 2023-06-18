@@ -5,6 +5,5 @@ authors = ["Matthew Else <matthewelse1997@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-clap = "3.0.0-beta.2"
-log = "0.4.14"
-nom = "6.1.2"
+clap = { version = "4.3.4", features = ["derive"] }
+nom = "7.1.3"

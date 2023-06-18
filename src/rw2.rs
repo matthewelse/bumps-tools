@@ -1,4 +1,5 @@
-use nom::{do_parse, many0, named, number::complete::le_u32};
+use nom::IResult;
+use nom::{multi::many0, number::complete::le_u32};
 use std::fs::File;
 use std::io::{Error, ErrorKind, Read};
 use std::path::Path;
@@ -15,28 +16,31 @@ pub enum Row {
     Competed(Details),
 }
 
-named!(
-    row<Vec<Option<Row>>>,
-    many0!(do_parse!(
-        _zero: le_u32
-            >> _zero: le_u32
-            >> start_year: le_u32
-            >> end_year: le_u32
-            >> start_idx: le_u32
-            >> end_idx: le_u32
-            >> (if start_year == 0 {
-                None
-            } else if start_year == 9999 {
-                Some(Row::DidNotCompete)
-            } else {
-                Some(Row::Competed(Details {
-                    years_active: (start_year, end_year),
-                    indices: (start_idx, end_idx),
-                }))
-            })
-    ))
-);
+fn entry(input: &[u8]) -> IResult<&[u8], Option<Row>> {
+    let (input, _zero) = le_u32(input)?;
+    let (input, _zero) = le_u32(input)?;
+    let (input, start_year) = le_u32(input)?;
+    let (input, end_year) = le_u32(input)?;
+    let (input, start_idx) = le_u32(input)?;
+    let (input, end_idx) = le_u32(input)?;
 
+    let result = if start_year == 0 {
+        None
+    } else if start_year == 9999 {
+        Some(Row::DidNotCompete)
+    } else {
+        Some(Row::Competed(Details {
+            years_active: (start_year, end_year),
+            indices: (start_idx, end_idx),
+        }))
+    };
+
+    Ok((input, result))
+}
+
+fn row(input: &[u8]) -> IResult<&[u8], Vec<Option<Row>>> {
+    many0(entry)(input)
+}
 impl Row {
     pub fn from_file(rw2: &Path) -> Result<Vec<Self>, Error> {
         let mut s = Vec::new();
