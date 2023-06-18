@@ -6,12 +6,15 @@ use clap::Parser;
 use cmd_query::Query;
 use std::path::PathBuf;
 
+mod cmd_db;
 mod cmd_query;
 mod colleges;
 mod crew;
+mod db_entry;
 mod decode;
 mod raw;
 mod rw2;
+mod schema;
 mod year;
 
 #[derive(Parser)]
@@ -31,6 +34,7 @@ struct Decode {
 enum Subcommand {
     Decode(Decode),
     Query(Query),
+    Db(cmd_db::Args),
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -44,5 +48,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(())
         }
         Subcommand::Query(query) => cmd_query::run(&query),
+        Subcommand::Db(args) => cmd_db::run(&args),
     }
 }
