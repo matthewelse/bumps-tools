@@ -135,9 +135,7 @@ fn from_bumps_cdrom(args: &BuildArgs) -> Result<(), Box<dyn std::error::Error>> 
         Competition::WomenLents,
         Competition::WomenMays,
     ] {
-        println!("{comp:?} (len: {})", all_entries.len());
         let crews = load_years(&args.data_dir, &clubs, comp).unwrap();
-        // println!("{crews:#?}");
 
         for this_club in clubs.clubs() {
             for this_crew in &this_club.crews {
