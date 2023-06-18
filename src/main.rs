@@ -34,7 +34,8 @@ struct Decode {
 enum Subcommand {
     Decode(Decode),
     Query(Query),
-    Db(cmd_db::Args),
+    #[clap(subcommand)]
+    Db(cmd_db::Subcommand),
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

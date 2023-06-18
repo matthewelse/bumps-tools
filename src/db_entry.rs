@@ -2,25 +2,17 @@ use std::fmt::Display;
 
 use clap::{Parser, ValueEnum};
 use diesel::{
-    backend::Backend, deserialize::FromSql, prelude::*, serialize::{ToSql, Output}, sqlite::Sqlite,
+    backend::Backend,
+    deserialize::FromSql,
+    prelude::*,
+    serialize::{Output, ToSql},
+    sql_types::VarChar,
+    sqlite::Sqlite,
     AsExpression, FromSqlRow,
 };
-use num_derive::{FromPrimitive, ToPrimitive};
-use num_traits::ToPrimitive;
 
-#[derive(
-    Debug,
-    FromSqlRow,
-    AsExpression,
-    Parser,
-    PartialEq,
-    Clone,
-    ValueEnum,
-    FromPrimitive,
-    ToPrimitive,
-    Copy,
-)]
-#[diesel(sql_type = diesel::sql_types::Integer)]
+#[derive(Debug, FromSqlRow, AsExpression, Parser, PartialEq, Clone, ValueEnum, Copy)]
+#[diesel(sql_type = diesel::sql_types::VarChar)]
 pub(crate) enum Competition {
     Early,
     MenMays,
@@ -29,31 +21,41 @@ pub(crate) enum Competition {
     WomenLents,
 }
 
-impl FromSql<diesel::sql_types::Integer, Sqlite> for Competition {
+impl FromSql<VarChar, Sqlite> for Competition {
     fn from_sql(bytes: <Sqlite as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        match i32::from_sql(bytes)? {
-            0 => Ok(Self::Early),
-            1 => Ok(Self::MenMays),
-            2 => Ok(Self::WomenMays),
-            3 => Ok(Self::MenLents),
-            4 => Ok(Self::WomenLents),
-            i => Err(format!("Unrecognised enum variant: {i}").into()),
-        }
+        Ok(Competition::from_slug(<String as FromSql<VarChar, Sqlite>>::from_sql(bytes)?.as_str())?)
     }
 }
 
-impl ToSql<diesel::sql_types::Integer, Sqlite> for Competition {
-    fn to_sql<'b>(
-        &'b self,
-        out: &mut Output<'b, '_, Sqlite>,
-    ) -> diesel::serialize::Result {
-        let val = Box::new(self.to_i32().unwrap());
-        let result = <i32 as ToSql<diesel::sql_types::Integer, Sqlite>>::to_sql(Box::leak(val), out)?;
+impl ToSql<VarChar, Sqlite> for Competition {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
+        let result = <str as ToSql<diesel::sql_types::VarChar, Sqlite>>::to_sql(self.slug(), out)?;
         Ok(result)
     }
 }
 
 impl Competition {
+    pub(crate) fn from_slug(s : &str) -> Result<Self, String> {
+        match s {
+            "early" => Ok(Self::Early),
+            "mmays" => Ok(Self::MenMays),
+            "wmays" => Ok(Self::WomenMays),
+            "mlents" => Ok(Self::MenLents),
+            "wlents" => Ok(Self::WomenLents),
+            name => Err(format!("Invalid competition name {name}").into()),
+        }
+    }
+
+    pub(crate) fn slug(&self) -> &'static str {
+        match self {
+            Self::Early => "early",
+            Self::MenMays => "mmays",
+            Self::WomenMays => "wmays",
+            Self::MenLents => "mlents",
+            Self::WomenLents => "wlents",
+        }
+    }
+
     pub(crate) fn raw_name(&self) -> &'static str {
         match self {
             Self::Early => "early",
@@ -89,26 +91,13 @@ impl Display for Competition {
     }
 }
 
-#[derive(Debug, Queryable, Selectable)]
-#[diesel(table_name = crate::schema::entries)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-pub(crate) struct Entry {
-    id : i32,
-    club : String,
-    crew: String,
-    year: i32,
-    day: i32,
-    position : i32,
-    competition: Competition,
-}
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = crate::schema::entries)]
 pub(crate) struct NewEntry<'a> {
-    pub year : i32,
-    pub day : i32,
-    pub club : &'a str,
-    pub crew : &'a str,
-    pub competition : Competition,
-    pub position : i32
+    pub year: i32,
+    pub day: i32,
+    pub club: &'a str,
+    pub crew: &'a str,
+    pub competition: Competition,
+    pub position: i32,
 }

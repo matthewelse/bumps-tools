@@ -4,6 +4,7 @@ CREATE TABLE entries (
     crew VARCHAR NOT NULL,
     year INTEGER NOT NULL,
     day INTEGER NOT NULL,
-    position INTEGER NOT NULL,
-    competition INTEGER CHECK (competition IN (0, 1, 2, 3, 4)) NOT NULL
+    position INTEGER NOT NULL CHECK (position >= 0),
+    competition VARCHAR CHECK (competition IN ('early', 'mmays', 'wmays', 'mlents', 'wlents')) NOT NULL,
+    UNIQUE(crew,year,day,competition)
 )

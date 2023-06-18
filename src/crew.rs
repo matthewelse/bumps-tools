@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 pub struct CrewRecord {
     pub name: String,  // long name, e.g. "King's 3"
     pub alias: String, // short name, e.g. "kings3"
-    years: BTreeMap<u32, Vec<u8>>,
+    pub years: BTreeMap<u32, Vec<u8>>,
 }
 
 impl CrewRecord {

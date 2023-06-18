@@ -8,6 +8,6 @@ diesel::table! {
         year -> Integer,
         day -> Integer,
         position -> Integer,
-        competition -> Integer,
+        competition -> Text,
     }
 }

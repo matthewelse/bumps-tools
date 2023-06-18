@@ -8,15 +8,19 @@ pub struct Crew {
 
 #[derive(Debug)]
 pub struct Club {
-    name: String,
-    colour: (u8, u8, u8),
-    crews: Vec<Crew>,
+    pub name: String,
+    _colour: (u8, u8, u8),
+    pub crews: Vec<Crew>,
 }
 
 #[derive(Debug)]
 pub struct Clubs(Vec<Club>);
 
 impl Clubs {
+    pub fn clubs(&self) -> &Vec<Club> {
+        &self.0
+    }
+
     pub fn crews(&self) -> Vec<&Crew> {
         self.0.iter().flat_map(|club| club.crews.iter()).collect()
     }
@@ -52,7 +56,7 @@ impl Clubs {
                     if let Some(current_colour) = current_colour {
                         clubs.push(Club {
                             name: String::from(current_name),
-                            colour: current_colour,
+                            _colour: current_colour,
                             crews: current_crews,
                         });
                     }
